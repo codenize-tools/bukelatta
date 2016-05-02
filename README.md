@@ -45,6 +45,7 @@ Usage: bukelatta [options]
         --dry-run
     -e, --export
     -o, --output FILE
+        --split
         --target REGEXP
         --no-color
         --debug
