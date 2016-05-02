@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['winebarrel']
   spec.email         = ['sgwr_dts@yahoo.co.jp']
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
+  spec.summary       = %q{Bukelatta is a tool to manage S3 Bucket Policy.}
+  spec.description   = %q{Bukelatta is a tool to manage S3 Bucket Policy.}
   spec.homepage      = 'git@github.com:winebarrel/bukelatta.git'
   spec.license       = 'MIT'
 

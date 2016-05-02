@@ -1,8 +1,8 @@
 # Bukelatta
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/bukelatta`. To experiment with that code, run `bin/console` for an interactive prompt.
+Bukelatta is a tool to manage S3 Bucket Policy.
 
-TODO: Delete this and the text above, and describe your gem
+It defines the state of S3 Bucket Policy using DSL, and updates S3 Bucket Policy according to DSL.
 
 ## Installation
 
@@ -22,20 +22,59 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```sh
+export AWS_ACCESS_KEY_ID='...'
+export AWS_SECRET_ACCESS_KEY='...'
+bukelatta -e -o PolicyFile  # export Bucket Policy
+vi PolicyFile
+bukelatta -a --dry-run
+bukelatta -a                # apply `PolicyFile`
+```
 
-## Development
+## Help
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+```
+Usage: bukelatta [options]
+    -k, --access-key ACCESS_KEY
+    -s, --secret-key SECRET_KEY
+    -r, --region REGION
+        --profile PROFILE
+        --credentials-path PATH
+    -a, --apply
+    -f, --file FILE
+        --dry-run
+    -e, --export
+    -o, --output FILE
+        --target REGEXP
+        --no-color
+        --debug
+        --request-concurrency N
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+## PolicyFile example
 
-## Contributing
+```ruby
+require 'other/policyfile'
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/bukelatta.
+bucket "foo-bucket" do
+  {"Version"=>"2012-10-17",
+   "Id"=>"AWSConsole-AccessLogs-Policy-XXX",
+   "Statement"=>
+    [{"Sid"=>"AWSConsoleStmt-XXX",
+      "Effect"=>"Allow",
+      "Principal"=>{"AWS"=>"arn:aws:iam::XXX:root"},
+      "Action"=>"s3:PutObject",
+      "Resource"=>
+       "arn:aws:s3:::foo-bucket/AWSLogs/XXX/*"}]}
+end
 
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
+bucket "bar-bucket" do
+  {"Version"=>"2012-10-17",
+   "Statement"=>
+    [{"Sid"=>"AddPerm",
+      "Effect"=>"Allow",
+      "Principal"=>"*",
+      "Action"=>"s3:GetObject",
+      "Resource"=>"arn:aws:s3:::bar-bucket/*"}]}
+end
+```
