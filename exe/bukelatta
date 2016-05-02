@@ -1,0 +1,129 @@
+#!/usr/bin/env ruby
+$: << File.expand_path('../../lib', __FILE__)
+
+require 'bukelatta'
+require 'optparse'
+
+Version = Bukelatta::VERSION
+
+DEFAULT_FILENAME = 'PolicyFile'
+
+MAGIC_COMMENT = <<-EOS
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+EOS
+
+def parse_options(argv)
+  options = {
+    file: DEFAULT_FILENAME,
+    output: '-',
+    dry_run: false,
+    color: true,
+    request_concurrency: 8,
+    aws: {},
+  }
+
+  opt = OptionParser.new
+  opt.on('-k', '--access-key ACCESS_KEY') {|v| options[:aws][:access_key_id]     = v }
+  opt.on('-s', '--secret-key SECRET_KEY') {|v| options[:aws][:secret_access_key] = v }
+  opt.on('-r', '--region REGION')         {|v| options[:aws][:region]            = v }
+
+  opt.on('', '--profile PROFILE') do |v|
+    options[:aws][:credentials] ||= {}
+    options[:aws][:credentials][:profile_name] = v
+  end
+
+  opt.on('', '--credentials-path PATH') do |v|
+    options[:aws][:credentials] ||= {}
+    options[:aws][:credentials][:path] = v
+  end
+
+  opt.on('-a', '--apply')         {    options[:mode]    = :apply        }
+  opt.on('-f', '--file FILE')     {|v| options[:file]    = v             }
+  opt.on(''  , '--dry-run')       {    options[:dry_run] = true          }
+  opt.on('-e', '--export')        {    options[:mode]    = :export       }
+  opt.on('-o', '--output FILE')   {|v| options[:output]  = v             }
+  opt.on(''  , '--target REGEXP') {|v| options[:target]  = Regexp.new(v) }
+  opt.on(''  , '--no-color')      {    options[:color]   = false         }
+  opt.on(''  , '--debug')         {    options[:debug]   = true          }
+
+  opt.on(''  , '--request-concurrency N', Integer) do |v|
+    options[:request_concurrency] = v
+  end
+
+  opt.parse!(argv)
+
+  unless options[:mode]
+    puts opt.help
+    exit 1
+  end
+
+  if options[:aws][:credentials]
+    credentials = Aws::SharedCredentials.new(options[:aws][:credentials])
+    options[:aws][:credentials] = credentials
+  end
+
+  String.colorize = options[:color]
+
+  if options[:debug]
+    Bukelatta::Logger.instance.set_debug(options[:debug])
+
+    Aws.config.update(
+      :http_wire_trace => true,
+      :logger => Bukelatta::Logger.instance
+    )
+  end
+
+  options
+rescue => e
+  $stderr.puts("[ERROR] #{e.message}")
+  exit 1
+end
+
+def main(argv)
+  options = parse_options(argv)
+  client = Bukelatta::Client.new(options)
+  logger = Bukelatta::Logger.instance
+
+  case options[:mode]
+  when :export
+    exported = client.export
+    output = options[:output]
+
+    if output == '-'
+      logger.info('# Export Bucket Policy')
+      puts exported
+    else
+      logger.info("Export Bucket Policy to `#{output}`")
+      open(output, 'wb') do |f|
+        f.puts MAGIC_COMMENT
+        f.puts exported
+      end
+    end
+  when :apply
+    file = options[:file]
+
+    unless File.exist?(file)
+      raise "No PolicyFile found (looking for: #{file})"
+    end
+
+    message = "Apply `#{file}` to Bucket Policy"
+    message << ' (dry-run)' if options[:dry_run]
+    logger.info(message)
+
+    updated = client.apply(file)
+
+    logger.info('No change'.intense_blue) unless updated
+  else
+    raise "Unknown mode: #{options[:mode]}"
+  end
+rescue => e
+  if options[:debug]
+    raise e
+  else
+    $stderr.puts("[ERROR] #{e.message}".red)
+    exit 1
+  end
+end
+
+main(ARGV)
