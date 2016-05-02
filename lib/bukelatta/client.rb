@@ -10,8 +10,7 @@ class Bukelatta::Client
   end
 
   def export
-    exported = Bukelatta::Exporter.export(@client, @options)
-    Bukelatta::DSL.convert(exported, @options)
+    Bukelatta::Exporter.export(@client, @options)
   end
 
   def apply(file)

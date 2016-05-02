@@ -43,6 +43,7 @@ def parse_options(argv)
   opt.on(''  , '--dry-run')       {    options[:dry_run] = true          }
   opt.on('-e', '--export')        {    options[:mode]    = :export       }
   opt.on('-o', '--output FILE')   {|v| options[:output]  = v             }
+  opt.on(''  , '--split')         {    options[:split]   = :true         }
   opt.on(''  , '--target REGEXP') {|v| options[:target]  = Regexp.new(v) }
   opt.on(''  , '--no-color')      {    options[:color]   = false         }
   opt.on(''  , '--debug')         {    options[:debug]   = true          }
@@ -90,14 +91,52 @@ def main(argv)
     exported = client.export
     output = options[:output]
 
-    if output == '-'
-      logger.info('# Export Bucket Policy')
-      puts exported
-    else
-      logger.info("Export Bucket Policy to `#{output}`")
+    if options[:split]
+      logger.info('Export Bucket Policy')
+
+      output = DEFAULT_FILENAME if output == '-'
+      dir = File.dirname(output)
+      FileUtils.mkdir_p(dir)
+      requires = []
+
+      exported.each do |bucket_name, policy|
+        next unless policy
+
+        filename = "#{bucket_name}.policy"
+        requires << filename
+        policy_file = File.join(dir, filename)
+
+        logger.info("  write `#{policy_file}`")
+
+        dsl = Bukelatta::DSL.convert({bucket_name => policy}, options)
+
+        open(policy_file, 'wb') do |f|
+          f.puts MAGIC_COMMENT
+          f.puts dsl
+        end
+      end
+
+      logger.info("  write `#{output}`")
+
       open(output, 'wb') do |f|
         f.puts MAGIC_COMMENT
-        f.puts exported
+
+        requires.each do |policy_file|
+          f.puts "require '#{policy_file}'"
+        end
+      end
+    else
+      dsl = Bukelatta::DSL.convert(exported, options)
+
+      if output == '-'
+        logger.info('# Export Bucket Policy')
+        puts dsl
+      else
+        logger.info("Export Bucket Policy to `#{output}`")
+        open(output, 'wb') do |f|
+          f.puts MAGIC_COMMENT
+          f.puts dsl
+        end
       end
     end
   when :apply
