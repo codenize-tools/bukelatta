@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Bukelatta is a tool to manage S3 Bucket Policy.}
   spec.description   = %q{Bukelatta is a tool to manage S3 Bucket Policy.}
-  spec.homepage      = 'git@github.com:winebarrel/bukelatta.git'
+  spec.homepage      = 'https://github.com/winebarrel/bukelatta'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
