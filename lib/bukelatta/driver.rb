@@ -12,8 +12,11 @@ class Bukelatta::Driver
     log(:info, "Create Bucket `#{bucket_name}` Policy", color: :cyan)
 
     unless @options[:dry_run]
-      bucket = @resource.region_bucket(bucket_name)
-      bucket.policy.put(policy: JSON.dump(policy))
+      bucket = @resource.bucket(bucket_name)
+
+      bucket.auto_redirect do |b|
+        b.policy.put(policy: JSON.dump(policy))
+      end
     end
   end
 
@@ -21,8 +24,11 @@ class Bukelatta::Driver
     log(:info, "Delete Bucket `#{bucket_name}` Policy", color: :red)
 
     unless @options[:dry_run]
-      bucket = @resource.region_bucket(bucket_name)
-      bucket.policy.delete
+      bucket = @resource.bucket(bucket_name)
+
+      bucket.auto_redirect do |b|
+        b.policy.delete
+      end
     end
   end
 
@@ -31,8 +37,11 @@ class Bukelatta::Driver
     log(:info, diff(old_policy, policy, color: @options[:color]), color: false)
 
     unless @options[:dry_run]
-      bucket = @resource.region_bucket(bucket_name)
-      bucket.policy.put(policy: JSON.dump(policy))
+      bucket = @resource.bucket(bucket_name)
+
+      bucket.auto_redirect do |b|
+        b.policy.put(policy: JSON.dump(policy))
+      end
     end
   end
 end

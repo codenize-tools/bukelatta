@@ -1,4 +1,6 @@
 class Bukelatta::Exporter
+  include Bukelatta::Utils::Helper
+
   def self.export(client, options = {})
     self.new(client, options).export
   end
@@ -15,11 +17,12 @@ class Bukelatta::Exporter
 
   def export_buckets
     result = {}
+    buckets = @resource.buckets
     concurrency = @options[:request_concurrency]
 
-    buckets = @resource.buckets(concurrency: concurrency)
-
     Parallel.each(buckets, in_threads: concurrency) do |bucket|
+      next unless matched?(bucket.name)
+
       policy = export_bucket_policy(bucket)
       result[bucket.name] = policy
     end
@@ -28,7 +31,9 @@ class Bukelatta::Exporter
   end
 
   def export_bucket_policy(bucket)
-    policy = JSON.parse(bucket.policy.policy.string)
+    bucket.auto_redirect do |b|
+      JSON.parse(b.policy.policy.string)
+    end
   rescue Aws::S3::Errors::NoSuchBucketPolicy
     nil
   end

@@ -10,7 +10,7 @@ require 'singleton'
 require 'term/ansicolor'
 
 require 'bukelatta/version'
-require 'bukelatta/ext/aws_s3_resource_ext'
+require 'bukelatta/ext/aws_s3_bucket_ext'
 require 'bukelatta/ext/hash_ext'
 require 'bukelatta/ext/string_ext'
 require 'bukelatta/logger'
