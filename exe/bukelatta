@@ -20,7 +20,7 @@ def parse_options(argv)
     dry_run: false,
     color: true,
     request_concurrency: 8,
-    aws: {},
+    aws: { ssl_verify_peer: false },
   }
 
   opt = OptionParser.new
@@ -64,6 +64,7 @@ def parse_options(argv)
     options[:aws][:credentials] = credentials
   end
 
+  Aws.config.update(options[:aws])
   String.colorize = options[:color]
 
   if options[:debug]
