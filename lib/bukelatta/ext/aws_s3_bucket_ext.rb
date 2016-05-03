@@ -1,7 +1,5 @@
 module Bukelatta::Ext
   module AwsS3BucketExt
-    DEFULT_CONCURRENCY = 8
-
     def auto_redirect
       ret = nil
       bckt = self
