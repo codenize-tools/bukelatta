@@ -7,7 +7,9 @@ class Bukelatta::DSL::Context
     }
   end
 
-  attr_reader :result
+  def result
+    @result.sort_array!
+  end
 
   def initialize(path, options = {}, &block)
     @path = path
