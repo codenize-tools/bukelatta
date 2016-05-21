@@ -1,10 +1,6 @@
 class Bukelatta::Exporter
   include Bukelatta::Utils::Helper
 
-  def self.export(client, options = {})
-    self.new(client, options).export
-  end
-
   def initialize(client, options = {})
     @client = client
     @options = options

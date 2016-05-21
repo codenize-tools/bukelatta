@@ -7,10 +7,11 @@ class Bukelatta::Client
     @client = @options[:client] || Aws::S3::Client.new
     @resource = Aws::S3::Resource.new(client: @client)
     @driver = Bukelatta::Driver.new(@client, @options)
+    @exporter = Bukelatta::Exporter.new(@client, @options)
   end
 
   def export
-    Bukelatta::Exporter.export(@client, @options)
+    @exporter.export
   end
 
   def apply(file)
@@ -21,7 +22,7 @@ class Bukelatta::Client
 
   def walk(file)
     expected = load_file(file)
-    actual = Bukelatta::Exporter.export(@client, @options)
+    actual = @exporter.export
 
     updated = walk_buckets(expected, actual)
 
