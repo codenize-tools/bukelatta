@@ -54,9 +54,13 @@ class Bukelatta::Client
         log(:warn, "No such bucket: #{bucket_name}")
       end
     end
+
+    updated
   end
 
   def walk_policy(bucket_name, expected_policy, actual_policy)
+    updated = false
+
     if expected_policy
       if expected_policy != actual_policy
         @driver.update_policy(bucket_name, expected_policy, actual_policy)
@@ -66,6 +70,8 @@ class Bukelatta::Client
       @driver.delete_policy(bucket_name)
       updated = true
     end
+
+    updated
   end
 
   def load_file(file)
