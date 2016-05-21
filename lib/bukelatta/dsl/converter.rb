@@ -20,7 +20,7 @@ class Bukelatta::DSL::Converter
     buckets = []
 
     policy_by_bucket.sort_by(&:first).each do |bucket_name, policy|
-      if not policy or not matched?(buckets)
+      if not policy or not matched?(bucket_name)
         next
       end
 
