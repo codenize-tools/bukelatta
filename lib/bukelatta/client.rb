@@ -6,7 +6,7 @@ class Bukelatta::Client
     @options = options
     @client = @options[:client] || Aws::S3::Client.new
     @resource = Aws::S3::Resource.new(client: @client)
-    @driver = Bukelatta::Driver.new(@client, options)
+    @driver = Bukelatta::Driver.new(@client, @options)
   end
 
   def export

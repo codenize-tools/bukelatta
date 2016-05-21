@@ -15,6 +15,8 @@ class Bukelatta::Exporter
     export_buckets
   end
 
+  private
+
   def export_buckets
     result = {}
     buckets = @resource.buckets
