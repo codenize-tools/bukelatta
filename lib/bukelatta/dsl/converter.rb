@@ -32,6 +32,7 @@ class Bukelatta::DSL::Converter
 
   def output_bucket(bucket_name, policy)
     policy = policy.pretty_inspect.gsub(/^/, '  ').strip
+
     <<-EOS
 bucket #{bucket_name.inspect} do
   #{policy}
