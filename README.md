@@ -79,3 +79,6 @@ bucket "bar-bucket" do
       "Resource"=>"arn:aws:s3:::bar-bucket/*"}]}
 end
 ```
+
+## Similar tools
+* [Codenize.tools](http://codenize.tools/)
