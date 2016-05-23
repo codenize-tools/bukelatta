@@ -25,10 +25,10 @@ Or install it yourself as:
 ```sh
 export AWS_ACCESS_KEY_ID='...'
 export AWS_SECRET_ACCESS_KEY='...'
-bukelatta -e -o PolicyFile  # export Bucket Policy
-vi PolicyFile
+bukelatta -e -o Policyfile  # export Bucket Policy
+vi Policyfile
 bukelatta -a --dry-run
-bukelatta -a                # apply `PolicyFile`
+bukelatta -a                # apply `Policyfile`
 ```
 
 ## Help
@@ -52,7 +52,7 @@ Usage: bukelatta [options]
         --request-concurrency N
 ```
 
-## PolicyFile example
+## Policyfile example
 
 ```ruby
 require 'other/policyfile'
