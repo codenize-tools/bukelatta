@@ -6,7 +6,8 @@ require 'optparse'
 
 Version = Bukelatta::VERSION
 
-DEFAULT_FILENAME = 'PolicyFile'
+OLD_DEFAULT_FILENAME = 'PolicyFile'
+DEFAULT_FILENAME = 'Policyfile'
 
 MAGIC_COMMENT = <<-EOS
 # -*- mode: ruby -*-
@@ -143,8 +144,19 @@ def main(argv)
   when :apply
     file = options[:file]
 
-    unless File.exist?(file)
-      raise "No PolicyFile found (looking for: #{file})"
+    # TODO: Remove OLD_DEFAULT_FILENAME support
+    if File.exist?(file)
+      if file == DEFAULT_FILENAME and Dir.glob(DEFAULT_FILENAME).first == OLD_DEFAULT_FILENAME
+        file = OLD_DEFAULT_FILENAME
+        logger.warn(%!"#{OLD_DEFAULT_FILENAME}" is deprecated. Please use "#{DEFAULT_FILENAME}"!.yellow)
+      end
+    else
+      if file == DEFAULT_FILENAME and File.exist?(OLD_DEFAULT_FILENAME)
+        file = OLD_DEFAULT_FILENAME
+        logger.warn(%!"#{OLD_DEFAULT_FILENAME}" is deprecated. Please use "#{DEFAULT_FILENAME}"!.yellow)
+      else
+        raise "No PolicyFile found (looking for: #{file})"
+      end
     end
 
     message = "Apply `#{file}` to Bucket Policy"
