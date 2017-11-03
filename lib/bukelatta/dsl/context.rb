@@ -50,6 +50,6 @@ class Bukelatta::DSL::Context
       raise "Bucket `#{name}` is already defined"
     end
 
-    @result[name] = yield
+    @result[name] = Hashie.stringify_keys yield(name)
   end
 end
