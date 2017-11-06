@@ -8,6 +8,7 @@ class Bukelatta::DSL::Context
   end
 
   def result
+    expand_leaf_array!
     @result.sort_array!
   end
 
@@ -51,5 +52,32 @@ class Bukelatta::DSL::Context
     end
 
     @result[name] = yield
+  end
+
+  def expand_leaf_array!
+    @result = expand_leaf_array(@result)
+  end
+
+  def expand_leaf_array(obj)
+    case obj
+    when Array
+      if obj[0].instance_of?(Array) || obj[0].instance_of?(Hash)
+        return obj.map do |o|
+          expand_leaf_array(o)
+        end
+      end
+      # Leaf
+      if obj.length == 1
+        return obj[0]
+      end
+      return obj
+    when Hash
+      h = {}
+      obj.each do |k, v|
+        h[k] = expand_leaf_array(v)
+      end
+      return h
+    end
+    return obj
   end
 end
