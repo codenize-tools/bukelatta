@@ -14,8 +14,12 @@ class Bukelatta::Driver
     unless @options[:dry_run]
       bucket = @resource.bucket(bucket_name)
 
-      bucket.auto_redirect do |b|
-        b.policy.put(policy: JSON.dump(policy))
+      if bucket.exists?
+        bucket.auto_redirect do |b|
+          b.policy.put(policy: JSON.dump(policy))
+        end
+      else
+        log(:warn, "`#{bucket_name}` does not exists. Skip processing")
       end
     end
   end
@@ -26,8 +30,12 @@ class Bukelatta::Driver
     unless @options[:dry_run]
       bucket = @resource.bucket(bucket_name)
 
-      bucket.auto_redirect do |b|
-        b.policy.delete
+      if bucket.exists?
+        bucket.auto_redirect do |b|
+          b.policy.delete
+        end
+      else
+        log(:warn, "`#{bucket_name}` does not exists. Skip processing")
       end
     end
   end
@@ -39,8 +47,12 @@ class Bukelatta::Driver
     unless @options[:dry_run]
       bucket = @resource.bucket(bucket_name)
 
-      bucket.auto_redirect do |b|
-        b.policy.put(policy: JSON.dump(policy))
+      if bucket.exists?
+        bucket.auto_redirect do |b|
+          b.policy.put(policy: JSON.dump(policy))
+        end
+      else
+        log(:warn, "`#{bucket_name}` does not exists. Skip processing")
       end
     end
   end
